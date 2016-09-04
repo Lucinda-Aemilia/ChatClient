@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -14,10 +14,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    signindialog.cpp
+    signindialog.cpp \
+    chatworker.cpp
 
 HEADERS  += mainwindow.h \
-    signindialog.h
+    signindialog.h \
+    chatworker.h
 
 FORMS    += mainwindow.ui \
     signindialog.ui
