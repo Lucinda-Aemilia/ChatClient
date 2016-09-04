@@ -35,6 +35,7 @@ void MainWindow::readFromSocket(const QString &info)
             m_descriptorList.append(list.at(i).toInt());
             m_usernameList.append(list.at(i+1));
         }
+        ui->stackedWidget->addWidget(QPlainTextEdit);
         updateTableWidget();
     }
 }

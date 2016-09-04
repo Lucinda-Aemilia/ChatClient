@@ -15,11 +15,14 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     signindialog.cpp \
-    chatworker.cpp
+    chatworker.cpp \
+    talkwidget.cpp
 
 HEADERS  += mainwindow.h \
     signindialog.h \
-    chatworker.h
+    chatworker.h \
+    talkwidget.h
 
 FORMS    += mainwindow.ui \
-    signindialog.ui
+    signindialog.ui \
+    talkwidget.ui

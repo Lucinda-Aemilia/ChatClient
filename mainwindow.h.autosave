@@ -6,6 +6,10 @@
 #include <QMainWindow>
 #include <QtNetwork>
 #include <QThread>
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <QPlainTextEdit>
+#include <QStackedWidget>
 
 namespace Ui {
 class MainWindow;
@@ -45,6 +49,7 @@ private:
 
     QVector<QString> m_usernameList;
     QVector<qintptr> m_descriptorList;
+    QVector<QWidget*> m_widgets;
 };
 
 #endif // MAINWINDOW_H

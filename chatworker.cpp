@@ -36,6 +36,7 @@ void ChatWorker::start()
     locker.unlock();
 
     this->m_tcpSocket = new QTcpSocket;
+    connect(m_tcpSocket, SIGNAL(readyRead()), this, SLOT(readAll()));
     const int Timeout = 5 * 1000;
 
     m_tcpSocket->connectToHost(hostName, port);
@@ -49,9 +50,8 @@ void ChatWorker::start()
     qDebug() << "ChatWorker::start()" << "connected" << m_tcpSocket->isOpen();
 
     // 写登录信息
-    QDataStream out(m_tcpSocket);
-    out.setVersion(QDataStream::Qt_4_0);
-    out << username;
+    QString str(QString("USERNAME`%1").arg(username));
+    m_tcpSocket->write(str.toLocal8Bit());
 }
 
 void ChatWorker::socketDisconnectSlot()
@@ -77,6 +77,13 @@ void ChatWorker::socketDisconnectSlot()
         qDebug() << "have been disconnected" << disconnected;
         emit socketDisconnectedSignal();
     }
+}
+
+void ChatWorker::readAll()
+{
+    QString info(m_tcpSocket->readAll());
+    qDebug() << "ChatWorker::readAll()" << info;
+    emit readFromSocket(info);
 }
 
 //! [4]

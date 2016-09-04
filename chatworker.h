@@ -21,10 +21,10 @@ public slots:
     void start();
     void run();
     void socketDisconnectSlot();
-
+    void readAll();
 
 signals:
-    void newFortune(const QString &fortune);
+    void readFromSocket(const QString &info);
     void error(int socketError, const QString &message);
     void socketDisconnectedSignal();
 
