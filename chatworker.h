@@ -20,10 +20,13 @@ public:
 public slots:
     void start();
     void run();
+    void socketDisconnectSlot();
+
 
 signals:
     void newFortune(const QString &fortune);
     void error(int socketError, const QString &message);
+    void socketDisconnectedSignal();
 
 private:
     QHostAddress m_address;

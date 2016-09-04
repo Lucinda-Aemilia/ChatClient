@@ -20,11 +20,24 @@ public:
                         int port, QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void socketDisconnectedSlot();
+
+signals:
+    void closed();
+
+protected:
+    void closeEvent(QCloseEvent* event);
+
 private:
     Ui::MainWindow *ui;
     QString m_username;
     QHostAddress m_address;
     int m_port;
+
+    QThread* thread;
+    ChatWorker* worker;
+    bool m_startToClose;
 };
 
 #endif // MAINWINDOW_H

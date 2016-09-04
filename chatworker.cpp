@@ -2,12 +2,14 @@
 
 ChatWorker::ChatWorker(const QHostAddress &hostName, quint16 port,
                        QString username, QObject *parent) :
+    QObject(parent),
     m_address(hostName),
     m_username(username),
     m_port(port),
-    m_quit(false),
-    QObject(parent)
+    m_quit(false)
+
 {
+    m_tcpSocket = NULL;
 }
 
 //! [0]
@@ -17,6 +19,11 @@ ChatWorker::~ChatWorker()
     m_quit = true;
     mutex.unlock();
     // wait();
+    if (m_tcpSocket)
+    {
+        qDebug() << "wait for disconnected";
+        m_tcpSocket->waitForDisconnected();
+    }
 }
 //! [0]
 
@@ -39,10 +46,37 @@ void ChatWorker::start()
         return;
     }
 
+    qDebug() << "ChatWorker::start()" << "connected" << m_tcpSocket->isOpen();
+
     // 写登录信息
     QDataStream out(m_tcpSocket);
     out.setVersion(QDataStream::Qt_4_0);
     out << username;
+}
+
+void ChatWorker::socketDisconnectSlot()
+{
+    qDebug() << "wait for disconnected" << m_tcpSocket;
+    m_tcpSocket->write(QString("QUIT").toLocal8Bit());
+    qDebug() << "written quit";
+    if (m_tcpSocket != NULL)
+    {
+        // qDebug() << "???";
+        m_tcpSocket->disconnectFromHost();
+        qDebug() << m_tcpSocket->state();
+        bool disconnected;
+        if (m_tcpSocket->state() == QAbstractSocket::UnconnectedState)
+            disconnected = true;
+        while (m_tcpSocket->state() != QAbstractSocket::UnconnectedState)
+        {
+            disconnected = m_tcpSocket->waitForDisconnected(1000);
+            if (disconnected)
+                break;
+        }
+        // bool disconnected = m_tcpSocket->waitForDisconnected();
+        qDebug() << "have been disconnected" << disconnected;
+        emit socketDisconnectedSignal();
+    }
 }
 
 //! [4]
