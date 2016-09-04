@@ -18,6 +18,10 @@ MainWindow::MainWindow(QString username, QHostAddress address,
     connect(this, SIGNAL(closed()), worker, SLOT(socketDisconnectSlot()));
     connect(worker, SIGNAL(socketDisconnectedSignal()), this, SLOT(socketDisconnectedSlot()));
     connect(worker, SIGNAL(readFromSocket(QString)), this, SLOT(readFromSocket(QString)));
+    connect(this, SIGNAL(writeToSocket(QString)),
+            worker, SLOT(writeToSocket(QString)));
+
+    connect(ui->recordList, SIGNAL(currentRowChanged(int)), this, SLOT(updateListWidget()));
     m_startToClose = false;
     thread->start();
 }
@@ -32,10 +36,39 @@ void MainWindow::readFromSocket(const QString &info)
         m_usernameList.clear();
         for (int i = 1; i < list.size() - 1; i += 2)
         {
-            m_descriptorList.append(list.at(i).toInt());
+            qintptr descriptor = list.at(i).toInt();
+            m_descriptorList.append(descriptor);
             m_usernameList.append(list.at(i+1));
+            // 聊天记录
+            if (!m_chatRecords.contains(descriptor))
+                m_chatRecords.insert(descriptor, QVector<QString>());
         }
+
+
         updateTableWidget();
+    }
+    else if (list.at(0) == "INFO_FROM")
+    {
+        qintptr descriptor = list.at(1).toInt();
+        QVector<QString> records(m_chatRecords.value(descriptor));
+        records.append(list.at(2));
+        m_chatRecords.insert(descriptor, records);
+
+        updateListWidget();
+    }
+}
+
+void MainWindow::updateListWidget()
+{
+    int index = ui->tableWidget->currentRow();
+    if (index < 0)
+        return;
+    qintptr descriptor = m_descriptorList.at(index);
+    QVector<QString> records(m_chatRecords.value(descriptor));
+    ui->recordList->clear();
+    for (int i = 0; i < records.size(); i++)
+    {
+        ui->recordList->addItem(records.at(i));
     }
 }
 
@@ -61,6 +94,7 @@ void MainWindow::updateTableWidget()
     }
     ui->tableWidget->resizeColumnsToContents();
     ui->tableWidget->resizeRowsToContents();
+    ui->tableWidget->selectRow(0);
 }
 
 void MainWindow::socketDisconnectedSlot()
@@ -87,4 +121,37 @@ void MainWindow::closeEvent(QCloseEvent *event)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::on_sendButton_clicked()
+{
+    int index = ui->tableWidget->currentRow();
+    QString text(ui->sendTextEdit->toPlainText());
+    text.remove("`");
+    qintptr descriptor = m_descriptorList.at(index);
+
+    QString record(QString("%1: %2").arg(m_username).arg(text));
+    QVector<QString> records(m_chatRecords.value(descriptor));
+    records.append(record);
+    // ui->recordList->addItem(records.last());
+    m_chatRecords.insert(descriptor, records);
+
+    QString info(QString("INFO_TO`%1`%2").arg(descriptor).arg(record));
+    // this->worker->writeToSocket(info);
+    emit writeToSocket(info);
+
+    ui->sendTextEdit->clear();
+    updateListWidget();
+}
+
+void MainWindow::on_tableWidget_cellChanged(int row, int column)
+{
+    QPoint(row, column);
+    updateListWidget();
+}
+
+void MainWindow::on_tableWidget_cellClicked(int row, int column)
+{
+    QPoint(row, column);
+    updateListWidget();
 }

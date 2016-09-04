@@ -25,7 +25,12 @@ ChatWorker::~ChatWorker()
         m_tcpSocket->waitForDisconnected();
     }
 }
-//! [0]
+
+void ChatWorker::writeToSocket(const QString &info)
+{
+    qDebug() << "ChatWorker::writeToSocket" << info;
+    this->m_tcpSocket->write(info.toLocal8Bit());
+}
 
 void ChatWorker::start()
 {

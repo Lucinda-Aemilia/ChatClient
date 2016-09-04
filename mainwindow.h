@@ -6,6 +6,11 @@
 #include <QMainWindow>
 #include <QtNetwork>
 #include <QThread>
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <QPlainTextEdit>
+#include <QStackedWidget>
+#include <QMap>
 
 namespace Ui {
 class MainWindow;
@@ -25,13 +30,22 @@ public slots:
     // void writeToSocketSlot();
     void readFromSocket(const QString& info);
     void updateTableWidget();
+    void updateListWidget();
 
 signals:
     void closed();
-    // void writeToSocket(const QString& info);
+    void writeToSocket(const QString& info);
 
 protected:
     void closeEvent(QCloseEvent* event);
+
+private slots:
+
+    void on_sendButton_clicked();
+
+    void on_tableWidget_cellChanged(int row, int column);
+
+    void on_tableWidget_cellClicked(int row, int column);
 
 private:
     Ui::MainWindow *ui;
@@ -45,6 +59,7 @@ private:
 
     QVector<QString> m_usernameList;
     QVector<qintptr> m_descriptorList;
+    QMap<qintptr, QVector<QString> > m_chatRecords;
 };
 
 #endif // MAINWINDOW_H

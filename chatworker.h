@@ -22,6 +22,7 @@ public slots:
     void run();
     void socketDisconnectSlot();
     void readAll();
+    void writeToSocket(const QString& info);
 
 signals:
     void readFromSocket(const QString &info);
