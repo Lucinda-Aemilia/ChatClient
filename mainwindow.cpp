@@ -21,6 +21,7 @@ MainWindow::MainWindow(QString username, QHostAddress address,
     connect(this, SIGNAL(writeToSocket(QString)),
             worker, SLOT(writeToSocket(QString)));
 
+    ui->usernameLabel->setText(m_username);
     connect(ui->recordList, SIGNAL(currentRowChanged(int)), this, SLOT(updateListWidget()));
     m_startToClose = false;
     thread->start();
